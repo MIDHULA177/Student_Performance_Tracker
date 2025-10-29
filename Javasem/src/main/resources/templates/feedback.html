@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${feedback != null ? 'Edit Feedback' : 'Feedback | JavaSem'}"></title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: rgba(255,255,255,0.3);
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 25px auto;
+        }
+        .message {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .add-form-container, .edit-form-container {
+            background: rgba(255,255,255,0.7);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .add-form-container select, .add-form-container textarea,
+        .edit-form-container input[type="text"], .edit-form-container textarea,
+        .add-form-container button, .edit-form-container button {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin: 5px;
+            box-sizing: border-box;
+        }
+        .add-form-container textarea, .edit-form-container textarea {
+            width: 80%;
+            height: 80px;
+            max-width: 600px;
+            display: block;
+            margin: 10px auto;
+        }
+        .submit-btn { background: #ff6f61; color: white; border: none; cursor: pointer; transition: 0.3s; }
+        .submit-btn:hover { background: #ff3b2f; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
+        th { background: #ffe6e6; }
+        .action-group { display: flex; justify-content: center; gap: 5px; }
+        .update-link, .delete-btn { padding: 5px 10px; border-radius: 4px; transition: 0.3s; text-decoration: none; font-size: 14px; }
+        .update-link { background: #ffc107; color: #333; }
+        .delete-btn { background: #dc3545; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+<header>
+    <a th:href="@{/}">💬 Subject Feedback Portal (Go Home)</a>
+</header>
+
+<div class="container">
+    <div th:if="${successMessage}" class="message success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="message error" th:text="${errorMessage}"></div>
+
+    <div th:if="${feedback != null}" class="edit-form-container">
+        <h3>Edit Feedback Record #<span th:text="${feedback.id}"></span></h3>
+        <form th:action="@{/feedback/update}" th:object="${feedback}" method="post">
+
+            <input type="hidden" th:field="*{id}">
+
+            <div style="display:flex; justify-content: center; gap: 20px;">
+                <div>
+                    <label>Student:</label>
+                    <input type="text" th:value="*{student.username}" readonly style="width: 150px;">
+                    <input type="hidden" th:field="*{student}">
+                </div>
+
+                <div>
+                    <label>Faculty:</label>
+                    <input type="text" th:value="*{faculty.username}" readonly style="width: 150px;">
+                    <input type="hidden" th:field="*{faculty}">
+                </div>
+            </div>
+
+            <textarea th:field="*{comments}" rows="5" required></textarea>
+
+            <input type="hidden" th:field="*{date}">
+
+            <button type="submit" class="submit-btn" style="background: #007bff;">💾 Save Changes</button>
+            <a th:href="@{/feedback}"><button type="button" class="submit-btn" style="background: #6c757d;">Cancel / Back to List</button></a>
+        </form>
+    </div>
+
+    <div th:if="${feedback == null}">
+
+        <div class="add-form-container">
+            <h3>Submit New Feedback</h3>
+            <form th:action="@{/feedback/add}" method="post">
+
+                <select name="studentId" required>
+                    <option value="">Select Student</option>
+                    <option th:each="s : ${allStudents}" th:value="${s.id}" th:text="${s.username}"></option>
+                </select>
+
+                <select name="facultyId" required>
+                    <option value="">Select Faculty</option>
+                    <option th:each="f : ${allFaculty}" th:value="${f.id}" th:text="${f.username}"></option>
+                </select>
+
+                <textarea name="comments" placeholder="Write your feedback comments here..." required></textarea>
+
+                <button type="submit" class="submit-btn">Submit Feedback</button>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Student</th>
+                <th>Faculty</th>
+                <th>Comments</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="f : ${feedbackList}">
+                <td th:text="${f.date}"></td>
+                <td th:text="${f.student.username}"></td>
+                <td th:text="${f.faculty.username}"></td>
+                <td th:text="${f.comments}"></td>
+                <td>
+                    <div class="action-group">
+                        <a th:href="@{/feedback/edit/{id}(id=${f.id})}" class="update-link">Update</a>
+
+                        <form th:action="@{/feedback/delete/{id}(id=${f.id})}" method="post">
+                            <button type="submit" class="delete-btn"
+                                    onclick="return confirm('Are you sure you want to delete this record?');">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

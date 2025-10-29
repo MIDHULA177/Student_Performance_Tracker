@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Performance Tracker | JavaSem</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #eef3fb;
+            margin: 0;
+        }
+        header {
+            background: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .container {
+            width: 90%;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            display: inline-block;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        /* Form/Input Styles */
+        input, select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background: #0056b3; }
+        .success {
+            color: green;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            text-align: center;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th { background: #f0f4ff; }
+        /* Action Button Styles */
+        .edit-btn { background: #ffc107; color: black; }
+        .edit-btn:hover { background: #e0a800; }
+        .delete-btn { background: #dc3545; }
+        .delete-btn:hover { background: #c82333; }
+
+        /* Ensures action buttons align properly */
+        .action-group {
+            display: flex;
+            justify-content: center;
+            gap: 5px; /* Spacing between buttons */
+        }
+
+        /* Make form elements inside the table cell look cleaner */
+        td input, td select {
+            width: 90%;
+            box-sizing: border-box;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<header>📈 Performance Tracker</header>
+
+<div class="container">
+
+    <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
+
+    <h2>Add New Performance</h2>
+    <form th:action="@{/performance/saveAll}" method="post" id="performanceForm">
+        <div style="text-align:center; margin-bottom: 15px;">
+            <label><b>Exam Name:</b></label>
+            <input type="text" name="exam" placeholder="Midterm / Final Exam" required style="width:200px;">
+            &nbsp;&nbsp;
+            <label><b>Subject:</b></label>
+            <input type="text" name="subject" placeholder="Mathematics / Science" required style="width:200px;">
+        </div>
+
+        <table>
+            <tr>
+                <th>Student Name</th>
+                <th>Marks (%)</th>
+                <th>Grade</th>
+            </tr>
+            <tr th:each="s : ${students}">
+                <td th:text="${s.username}"></td>
+                <input type="hidden" name="studentIds" th:value="${s.id}">
+                <td><input type="number" name="marks" min="0" max="100" class="mark-input" required style="width:100px;"></td>
+                <td><input type="text" name="grade" class="grade-field" readonly style="width:80px;"></td>
+            </tr>
+        </table>
+
+        <div style="text-align:center; margin-top:20px;">
+            <button type="submit">💾 Save All</button>
+        </div>
+    </form>
+</div>
+
+<div class="container">
+    <h2>Saved Performances</h2>
+
+    <form th:action="@{/performance}" method="get" style="margin-bottom:15px; text-align:center;">
+
+        <label><b>Exam:</b></label>
+        <input type="text" name="exam" placeholder="e.g. Midterm" style="width:150px;" th:value="${param.exam}">
+
+        &nbsp;&nbsp;
+        <label><b>Subject:</b></label>
+        <input type="text" name="subject" placeholder="e.g. Science" style="width:150px;" th:value="${param.subject}">
+
+        &nbsp;&nbsp;
+        <label><b>Grade:</b></label>
+        <select name="grade" style="width:120px;">
+            <option value="" th:selected="${param.grade == null or #strings.isEmpty(param.grade[0])}">All</option>
+            <option value="A+" th:selected="${param.grade != null and param.grade[0] == 'A+'}">A+</option>
+            <option value="A" th:selected="${param.grade != null and param.grade[0] == 'A'}">A</option>
+            <option value="B+" th:selected="${param.grade != null and param.grade[0] == 'B+'}">B+</option>
+            <option value="B" th:selected="${param.grade != null and param.grade[0] == 'B'}">B</option>
+            <option value="C" th:selected="${param.grade != null and param.grade[0] == 'C'}">C</option>
+            <option value="F" th:selected="${param.grade != null and param.grade[0] == 'F'}">F</option>
+        </select>
+
+        &nbsp;&nbsp;
+        <button type="submit">🔍 Filter</button>
+
+        <a th:href="@{/performance}" style="text-decoration:none;">
+            <button type="button" style="background: #6c757d;">↺ Reset</button>
+        </a>
+    </form>
+
+    <table>
+        <tr>
+            <th>Student</th>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Grade</th>
+            <th>Exam</th>
+            <th>Action</th>
+        </tr>
+
+        <tr th:each="p : ${performanceList}">
+            <td th:text="${p.student.username}"></td>
+
+            <form th:action="@{/performance/update}" method="post" style="display:contents;">
+                <input type="hidden" name="id" th:value="${p.id}">
+
+                <td><input type="text" name="subject" th:value="${p.subject}"></td>
+                <td><input type="number" name="marks" th:value="${p.marks}" min="0" max="100"></td>
+                <td><input type="text" name="grade" th:value="${p.grade}"></td>
+                <td><input type="text" name="exam" th:value="${p.exam}"></td> <td class="action-group">
+                <button type="submit" class="edit-btn">Update</button>
+            </form>
+
+            <form th:action="@{/performance/delete/{id}(id=${p.id})}" method="post">
+                <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+            </form>
+            </td>
+        </tr>
+    </table>
+
+    <div style="text-align:center; margin-top:20px;">
+        <a href="/performance/export"><button>📊 Export to Excel</button></a>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.mark-input').forEach((input, index) => {
+        input.addEventListener('input', () => {
+            const mark = parseInt(input.value);
+            // This is safe because .mark-input and .grade-field are paired in the 'Add New Performance' form
+            const gradeField = document.querySelectorAll('.grade-field')[index];
+
+            if (mark >= 90) gradeField.value = 'A+';
+            else if (mark >= 80) gradeField.value = 'A';
+            else if (mark >= 70) gradeField.value = 'B+';
+            else if (mark >= 60) gradeField.value = 'B';
+            else if (mark >= 50) gradeField.value = 'C';
+            else gradeField.value = 'F';
+        });
+    });
+</script>
+
+</body>
+</html>

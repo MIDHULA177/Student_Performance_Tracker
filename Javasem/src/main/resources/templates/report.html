@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reports | JavaSem</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f7faff;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .chart-box {
+            width: 45%;
+            min-width: 350px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+<h2>📊 JavaSem Reports</h2>
+<div class="chart-container">
+    <div class="chart-box">
+        <h3>Attendance Percentage</h3>
+        <canvas id="attendanceChart"></canvas>
+    </div>
+    <div class="chart-box">
+        <h3>Average Marks</h3>
+        <canvas id="marksChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const ctx1 = document.getElementById('attendanceChart');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Alice', 'Bob', 'Charlie', 'David'],
+            datasets: [{
+                label: 'Attendance (%)',
+                data: [90, 80, 95, 70],
+                backgroundColor: '#6a11cb'
+            }]
+        }
+    });
+
+    const ctx2 = document.getElementById('marksChart');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: ['Math', 'Science', 'English', 'CS'],
+            datasets: [{
+                label: 'Average Marks',
+                data: [88, 92, 80, 85],
+                borderColor: '#00c6ff',
+                fill: false,
+                tension: 0.3
+            }]
+        }
+    });
+</script>
+</body>
+</html>

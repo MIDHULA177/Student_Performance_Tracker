@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard | JavaSem</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        body {
+            background: linear-gradient(to right, #8360c3, #2ebf91);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px;
+            width: 80%;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(8px);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            letter-spacing: 1px;
+        }
+        p {
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        a {
+            background: #fff;
+            color: #333;
+            padding: 14px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        a:hover {
+            background: #2ebf91;
+            color: #fff;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎓 Welcome to Student Attendance and Performance Tracker </h1>
+    <p>Manage Attendance, Performance & Feedback efficiently!</p>
+    <div class="btn-group">
+        <a href="/attendance">📅 Attendance</a>
+        <a href="/performance">📈 Performance</a>
+        <a href="/feedback">💬 Feedback</a>
+        <a href="/report">📊 Reports</a>
+        <a href="/logout">🚪 Logout</a>
+    </div>
+</div>
+</body>
+</html>
