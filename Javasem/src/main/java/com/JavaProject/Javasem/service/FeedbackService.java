@@ -1,49 +1,58 @@
 package com.JavaProject.Javasem.service;
 
+import com.JavaProject.Javasem.model.Feedback;
+import com.JavaProject.Javasem.model.User;
+import com.JavaProject.Javasem.repository.FeedbackRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
-import com.JavaProject.Javasem.model.Feedback;
-import com.JavaProject.Javasem.repository.FeedbackRepository;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class FeedbackService {
 
-    private final FeedbackRepository repo;
+    private final FeedbackRepository feedbackRepository;
+    private final UserService userService; // Assuming you have a UserService to find students
 
-    // 1. Save/Update Feedback (Used by /add and /update)
-    public Feedback saveFeedback(Feedback feedback) {
-        if (feedback.getId() == null && feedback.getDate() == null) {
-            feedback.setDate(LocalDate.now());
+    /**
+     * Saves a single feedback object to the database.
+     */
+    public void saveFeedback(Feedback feedback) {
+        // Ensure dateSubmitted is set before saving
+        if (feedback.getDateSubmitted() == null) {
+            feedback.setDateSubmitted(LocalDate.now());
         }
-        return repo.save(feedback);
+        feedbackRepository.save(feedback);
     }
 
-    // 2. Retrieve All Feedback (Used for the list view)
+    /**
+     * Saves multiple feedback objects (e.g., from a multi-subject form submission).
+     */
+    public void saveAllFeedback(List<Feedback> feedbackList) {
+        feedbackList.forEach(feedback -> {
+            if (feedback.getDateSubmitted() == null) {
+                feedback.setDateSubmitted(LocalDate.now());
+            }
+        });
+        feedbackRepository.saveAll(feedbackList);
+    }
+
+    /**
+     * Finds all feedback records for display/reporting.
+     */
     public List<Feedback> getAllFeedback() {
-        return repo.findAll();
+        return feedbackRepository.findAll();
     }
 
-    // 3. Find Feedback by ID (Used by /edit/{id})
-    public Optional<Feedback> findById(Long id) {
-        return repo.findById(id);
+    /**
+     * Finds all feedback records submitted by a specific student ID.
+     */
+    public List<Feedback> getFeedbackByStudentId(Long studentId) {
+        return feedbackRepository.findByStudentId(studentId);
     }
 
-    // 4. Delete Feedback by ID
-    public void deleteById(Long id) {
-        repo.deleteById(id);
-    }
 
-    // --- Specific Retrieval Methods (Optional but kept for completeness) ---
-
-    public List<Feedback> byStudent(Long sid) {
-        return repo.findByStudentId(sid);
-    }
-
-    public List<Feedback> byFaculty(Long fid) {
-        return repo.findByFacultyId(fid);
-    }
+    // You can add more complex logic here, like calculating average subject ratings.
 }

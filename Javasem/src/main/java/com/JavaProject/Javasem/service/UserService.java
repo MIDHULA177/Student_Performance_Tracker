@@ -24,6 +24,7 @@ public class UserService {
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
+    
 
     public List<User> findAllStudents() {
         return userRepository.findAll().stream()

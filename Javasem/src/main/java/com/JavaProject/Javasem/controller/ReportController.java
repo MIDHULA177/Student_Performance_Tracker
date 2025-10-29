@@ -1,6 +1,6 @@
 package com.JavaProject.Javasem.controller;
 
-import com.JavaProject.Javasem.dto.Report; // Adjust import path
+import com.JavaProject.Javasem.model.Report; // ✅ CORRECTED: Importing from model
 import com.JavaProject.Javasem.service.ReportService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +18,7 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    // Endpoint to generate and show a report for a specific student ID
+    // Maps to: GET /reports/{studentId}
     @GetMapping("/{studentId}")
     public String generateReport(@PathVariable Long studentId, Model model) {
 
@@ -26,9 +26,6 @@ public class ReportController {
 
         model.addAttribute("report", report);
 
-        // Returns the report.html template
         return "report";
     }
-
-    // You might also add a default endpoint to show a list of all student IDs to select from
 }

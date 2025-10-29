@@ -4,86 +4,28 @@ import java.util.List;
 
 public class Report {
 
-    // --- Overall Student Information ---
-    private String studentName;
-    private String overallGrade;
-    private String suggestion;
+    private String subject;
+    private String exam;
+    private int marks;
+    private String grade;
 
-    // --- Attendance Analysis ---
-    private double attendancePercentage;
-    private int totalAttendanceDays;
-    private int totalClassDays;
-
-    // --- Detailed Subject Performance (Requires a separate SubjectReport class) ---
-    private List<SubjectReport> subjectReports;
-
-    // --- Constructor (Required for easy object creation in the service) ---
-    // You must also define a SubjectReport class somewhere in your code.
-    public Report(String studentName, String overallGrade, double attendancePercentage, int totalAttendanceDays, int totalClassDays, String suggestion, List<SubjectReport> subjectReports) {
-        this.studentName = studentName;
-        this.overallGrade = overallGrade;
-        this.attendancePercentage = attendancePercentage;
-        this.totalAttendanceDays = totalAttendanceDays;
-        this.totalClassDays = totalClassDays;
-        this.suggestion = suggestion;
-        this.subjectReports = subjectReports;
+    public Report(String subject, String exam, int marks, String grade) {
+        this.subject = subject;
+        this.exam = exam;
+        this.marks = marks;
+        this.grade = grade;
     }
 
-    // --- Getters and Setters (REQUIRED BY THYMELEAF) ---
-
-    public String getStudentName() {
-        return studentName;
+    public Report(String username, String overallGrade, double attendancePercentage, int totalAttendanceDays, int totalClassDays, String suggestion, List<Report> subjectReports) {
     }
 
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
-    }
-
-    public String getOverallGrade() {
-        return overallGrade;
-    }
-
-    public void setOverallGrade(String overallGrade) {
-        this.overallGrade = overallGrade;
-    }
-
-    public double getAttendancePercentage() {
-        return attendancePercentage;
-    }
-
-    public void setAttendancePercentage(double attendancePercentage) {
-        this.attendancePercentage = attendancePercentage;
-    }
-
-    public int getTotalAttendanceDays() {
-        return totalAttendanceDays;
-    }
-
-    public void setTotalAttendanceDays(int totalAttendanceDays) {
-        this.totalAttendanceDays = totalAttendanceDays;
-    }
-
-    public int getTotalClassDays() {
-        return totalClassDays;
-    }
-
-    public void setTotalClassDays(int totalClassDays) {
-        this.totalClassDays = totalClassDays;
-    }
-
-    public String getSuggestion() {
-        return suggestion;
-    }
-
-    public void setSuggestion(String suggestion) {
-        this.suggestion = suggestion;
-    }
-
-    public List<SubjectReport> getSubjectReports() {
-        return subjectReports;
-    }
-
-    public void setSubjectReports(List<SubjectReport> subjectReports) {
-        this.subjectReports = subjectReports;
-    }
+    // --- Getters and Setters (Required) ---
+    public String getSubject() { return subject; }
+    public void setSubject(String subject) { this.subject = subject; }
+    public String getExam() { return exam; }
+    public void setExam(String exam) { this.exam = exam; }
+    public int getMarks() { return marks; }
+    public void setMarks(int marks) { this.marks = marks; }
+    public String getGrade() { return grade; }
+    public void setGrade(String grade) { this.grade = grade; }
 }

@@ -1,94 +1,79 @@
 package com.JavaProject.Javasem.controller;
 
 import com.JavaProject.Javasem.model.Feedback;
-import com.JavaProject.Javasem.model.User; // Ensure you have this import
+import com.JavaProject.Javasem.model.User;
 import com.JavaProject.Javasem.service.FeedbackService;
-import com.JavaProject.Javasem.service.UserService; // CRITICAL: Import UserService
+import com.JavaProject.Javasem.service.UserService;
+import lombok.RequiredArgsConstructor;
+// CRITICAL FIX: Use the correct Spring Security Authentication import
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/feedback")
+@RequiredArgsConstructor
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
-    private final UserService userService; // CRITICAL: Inject UserService
+    private final UserService userService; // Used to mock/fetch the current student
 
-    public FeedbackController(FeedbackService feedbackService, UserService userService) {
-        this.feedbackService = feedbackService;
-        this.userService = userService; // Initialize UserService
-    }
+    // Sample list of subjects for the dropdown (replace with dynamic fetching if needed)
+    private final List<String> SUBJECTS_LIST = Arrays.asList("Math", "Science", "History", "English");
 
-    // 1. Display all feedback
+    /**
+     * Displays the feedback submission form and the list of past feedback.
+     */
     @GetMapping
-    public String viewFeedback(Model model) {
+    public String showFeedbackPage(Model model) {
+
+        // 1. Setup form for submission (using a new Feedback object)
+        model.addAttribute("newFeedback", new Feedback());
+
+        // 2. Pass the list of subjects for the dropdown
+        model.addAttribute("subjectsList", SUBJECTS_LIST);
+
+        // 3. Display all past feedback records
         model.addAttribute("feedbackList", feedbackService.getAllFeedback());
-        // Add User lists for the Add form dropdowns (assuming these methods exist in UserService)
-        model.addAttribute("allStudents", userService.getAllStudents());
-        model.addAttribute("allFaculty", userService.getAllFaculty());
 
-        return "feedback-list";
+        return "feedback"; // Assumes you have a Thymeleaf template named 'feedback.html'
     }
 
-    // 2. ✅ FIX: Handle adding new feedback by accepting IDs and fetching Users
-    @PostMapping("/add")
-    public String addFeedback(@RequestParam Long studentId, // Accept the ID
-                              @RequestParam Long facultyId, // Accept the ID
-                              @RequestParam String comments, // Accept comments
-                              RedirectAttributes redirectAttributes) {
 
-        // 1. Fetch the actual User entities
-        User student = userService.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Student ID: " + studentId));
-        User faculty = userService.findById(facultyId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Faculty ID: " + facultyId));
+    /**
+     * Handles the submission of new feedback.
+     * It relies on Spring Security's Authentication object to fetch the logged-in student.
+     */
+    @PostMapping("/submit")
+    public String submitFeedback(@ModelAttribute("newFeedback") Feedback feedback,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
 
-        // 2. Create the Feedback object
-        Feedback feedback = new Feedback();
-        feedback.setStudent(student);
-        feedback.setFaculty(faculty);
-        feedback.setComments(comments);
+        // 1. Get the username/email (principal name) from the logged-in user
+        // FIX: Use the standard .getName() method from Spring Security Authentication
+        String username = authentication.getName();
 
-        // 3. Save the complete object
-        feedbackService.saveFeedback(feedback);
-        redirectAttributes.addFlashAttribute("successMessage", "✅ Feedback added successfully!");
-        return "redirect:/feedback";
-    }
+        // 2. Load the existing, managed Student/User entity from the database
+        // ASSUMPTION: The UserService method findByUsername is implemented and returns an Optional<User>
+        User existingStudent = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Logged-in student user not found with username: " + username));
 
-    // In FeedbackController.java
+        // 3. Set the LOADED entity on the new feedback object
+        feedback.setStudent(existingStudent);
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Feedback> feedbackOptional = feedbackService.findById(id);
-
-        if (feedbackOptional.isPresent()) {
-            model.addAttribute("feedback", feedbackOptional.get());
-            // FIX: Return the name of the combined template
-            return "feedback";
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "❌ Error: Feedback record not found.");
-            return "redirect:/feedback";
+        // 4. Save the new Feedback, correctly linked to the existing student.
+        try {
+            feedbackService.saveFeedback(feedback);
+            redirectAttributes.addFlashAttribute("successMessage", "✅ Feedback submitted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "❌ Error saving feedback: " + e.getMessage());
         }
-    }
 
-    // 4. POST Mapping: Handle form submission for updating a record
-    @PostMapping("/update")
-    public String updateFeedback(@ModelAttribute Feedback feedback, RedirectAttributes redirectAttributes) {
-        // Since the User entities are loaded via the HTML hidden fields,
-        // the save method works directly for updates.
-        feedbackService.saveFeedback(feedback);
-        redirectAttributes.addFlashAttribute("successMessage", "✅ Feedback updated successfully!");
-        return "redirect:/feedback";
-    }
-
-    // 5. POST Mapping: Handle deleting a record
-    @PostMapping("/delete/{id}")
-    public String deleteFeedback(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        feedbackService.deleteById(id);
-        redirectAttributes.addFlashAttribute("successMessage", "🗑️ Feedback deleted successfully!");
         return "redirect:/feedback";
     }
 }

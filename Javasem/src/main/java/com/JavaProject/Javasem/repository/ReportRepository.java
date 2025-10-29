@@ -1,15 +1,12 @@
 package com.JavaProject.Javasem.repository;
 
-import com.JavaProject.Javasem.model.ReportSnapshot; // Must be a JPA @Entity
+import com.JavaProject.Javasem.model.ReportSnapshot;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
-import java.util.Optional;
 
+// This repository is for the PERSISTENT historical report, not the transient DTO.
 public interface ReportRepository extends JpaRepository<ReportSnapshot, Long> {
 
-    // Find all historical reports for a specific student
+    // Custom query to find all past reports for a student
     List<ReportSnapshot> findByStudentId(Long studentId);
-
-    // Find the most recent report for a student
-    Optional<ReportSnapshot> findTopByStudentIdOrderByDateGeneratedDesc(Long studentId);
 }
