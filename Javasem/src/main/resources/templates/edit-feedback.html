@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Feedback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select, textarea {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .back-link a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Edit Feedback</h2>
+
+    <form th:action="@{'/feedback/update/' + ${feedback.id}}" method="post" th:object="${feedback}">
+        <input type="hidden" th:field="*{id}" />
+
+        <label>Subject:</label>
+        <input type="text" th:field="*{subject}" readonly />
+
+        <label>Rating:</label>
+        <select th:field="*{rating}">
+            <option th:value="1">1 - Poor</option>
+            <option th:value="2">2 - Fair</option>
+            <option th:value="3">3 - Good</option>
+            <option th:value="4">4 - Very Good</option>
+            <option th:value="5">5 - Excellent</option>
+        </select>
+
+        <label>Comment:</label>
+        <textarea th:field="*{comment}" rows="4"></textarea>
+
+        <button type="submit">Update Feedback</button>
+    </form>
+
+    <div class="back-link">
+        <a href="/feedback">⬅ Go Back to Feedback Page</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -67,6 +67,17 @@
             border-collapse: collapse;
             margin-top: 15px;
         }
+        .home-btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .home-btn:hover { background: #0056b3; }
         th, td {
             text-align: center;
             padding: 12px;
@@ -99,13 +110,8 @@
 <header>
     📈 Performance Tracker
 </header>
-<div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
-    <a th:href="@{/}" style="text-decoration: none;">
-        <button type="button"
-                style="background: #343a40; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;">
-            Go to Home (Index)
-        </button>
-    </a>
+<div style="text-align:center; margin-top:10px;">
+    <a th:href="@{/}" class="home-btn">🏠 Go to Home</a>
 </div>
 
 <div class="container">
@@ -187,49 +193,33 @@
         </tr>
 
         <tr th:each="p : ${performanceList}">
-            <td th:text="${p.student.username}"></td>
+            <form th:action="@{/performance/update}" method="post">
+                <td th:text="${p.student.username}"></td>
 
-            <td>
-                <form th:action="@{/performance/update}" method="post">
-                    <input type="hidden" name="id" th:value="${p.id}">
-                    <input type="text" name="subject" th:value="${p.subject}" style="width: 100%;">
-                </form>
-            </td>
+                <!-- Hidden ID -->
+                <input type="hidden" name="id" th:value="${p.id}">
 
-            <td>
-                <form th:action="@{/performance/update}" method="post">
-                    <input type="hidden" name="id" th:value="${p.id}">
-                    <input type="number" name="marks" th:value="${p.marks}" min="0" max="100" style="width: 100%;">
-                </form>
-            </td>
+                <!-- Editable fields -->
+                <td><input type="text" name="subject" th:value="${p.subject}" required style="width:100%;"></td>
+                <td><input type="number" name="marks" th:value="${p.marks}" min="0" max="100" required style="width:100%;"></td>
+                <td><input type="text" name="grade" th:value="${p.grade}" required style="width:100%;"></td>
+                <td><input type="text" name="exam" th:value="${p.exam}" required style="width:100%;"></td>
 
-            <td>
-                <form th:action="@{/performance/update}" method="post">
-                    <input type="hidden" name="id" th:value="${p.id}">
-                    <input type="text" name="grade" th:value="${p.grade}" style="width: 100%;">
-                </form>
-            </td>
-
-            <td>
-                <form th:action="@{/performance/update}" method="post">
-                    <input type="hidden" name="id" th:value="${p.id}">
-                    <input type="text" name="exam" th:value="${p.exam}" style="width: 100%;">
-                </form>
-            </td>
-
-            <td class="action-group">
-                <form th:action="@{/performance/update}" method="post">
-                    <input type="hidden" name="id" th:value="${p.id}">
+                <td class="action-group">
                     <button type="submit" class="edit-btn">Update</button>
-                </form>
+                </td>
+            </form>
 
-                <form th:action="@{/performance/delete/{id}(id=${p.id})}" method="post" style="display:contents;">
-                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+            <!-- Delete stays outside -->
+            <td class="action-group">
+                <form th:action="@{/performance/delete/{id}(id=${p.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="delete-btn"
+                            onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
                 </form>
             </td>
-
         </tr>
     </table>
+
 
     <div style="text-align:center; margin-top:20px;">
         <a th:href="@{/performance/export}"><button>📊 Export to Excel</button></a>

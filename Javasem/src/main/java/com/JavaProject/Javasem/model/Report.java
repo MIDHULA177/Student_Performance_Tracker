@@ -1,31 +1,48 @@
-package com.JavaProject.Javasem.model; // Or com.JavaProject.Javasem.dto
+package com.JavaProject.Javasem.model;
 
-import java.util.List;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
+@Entity
 public class Report {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String studentName;
     private String subject;
-    private String exam;
-    private int marks;
-    private String grade;
+    private double marks;
+    private double attendance;
+    private String suggestion;
+    private LocalDate dateCreated = LocalDate.now();
 
-    public Report(String subject, String exam, int marks, String grade) {
-        this.subject = subject;
-        this.exam = exam;
-        this.marks = marks;
-        this.grade = grade;
-    }
+    // Getters and Setters
+    public Long getId() { return id; }
 
-    public Report(String username, String overallGrade, double attendancePercentage, int totalAttendanceDays, int totalClassDays, String suggestion, List<Report> subjectReports) {
-    }
+    public void setId(Long id) { this.id = id; }
 
-    // --- Getters and Setters (Required) ---
+    public String getStudentName() { return studentName; }
+
+    public void setStudentName(String studentName) { this.studentName = studentName; }
+
     public String getSubject() { return subject; }
+
     public void setSubject(String subject) { this.subject = subject; }
-    public String getExam() { return exam; }
-    public void setExam(String exam) { this.exam = exam; }
-    public int getMarks() { return marks; }
-    public void setMarks(int marks) { this.marks = marks; }
-    public String getGrade() { return grade; }
-    public void setGrade(String grade) { this.grade = grade; }
+
+    public double getMarks() { return marks; }
+
+    public void setMarks(double marks) { this.marks = marks; }
+
+    public double getAttendance() { return attendance; }
+
+    public void setAttendance(double attendance) { this.attendance = attendance; }
+
+    public String getSuggestion() { return suggestion; }
+
+    public void setSuggestion(String suggestion) { this.suggestion = suggestion; }
+
+    public LocalDate getDateCreated() { return dateCreated; }
+
+    public void setDateCreated(LocalDate dateCreated) { this.dateCreated = dateCreated; }
 }

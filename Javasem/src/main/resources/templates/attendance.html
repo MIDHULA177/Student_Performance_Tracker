@@ -8,12 +8,13 @@
             background: #f2f6ff;
             margin: 0;
         }
-        header {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            color: white;
+       header {
+            background: #007bff;
+            color: #fff;
             padding: 20px;
             text-align: center;
             font-size: 22px;
+            font-weight: 600;
         }
         table {
             width: 85%;
@@ -34,6 +35,17 @@
             border: 1px solid #ccc;
             border-radius: 6px;
         }
+        .home-btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .home-btn:hover { background: #0056b3; }
         button {
             background: #6a11cb;
             color: white;
@@ -56,14 +68,10 @@
 <header>
     📋 Attendance Tracker
 </header>
-<div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
-    <a th:href="@{/}" style="text-decoration: none;">
-        <button type="button"
-                style="background: #343a40; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;">
-            Go to Home (Index)
-        </button>
-    </a>
+<div style="text-align:center; margin-top:10px;">
+    <a th:href="@{/}" class="home-btn">🏠 Go to Home</a>
 </div>
+
 
 <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
 

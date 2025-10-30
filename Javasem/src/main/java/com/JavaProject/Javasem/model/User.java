@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+    private String name;
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -20,5 +21,22 @@ public class User {
 
     // roles: ADMIN, FACULTY, STUDENT
     private String role;
+
+    public String getGrade() {
+        return "";
+    }
+
+    public int getAttendance() {
+        return 0;
+    }
+
+
+    public CharSequence getStrengths() {
+        return null;
+    }
+
+    public CharSequence getAreasForImprovement() {
+        return null;
+    }
 }
 

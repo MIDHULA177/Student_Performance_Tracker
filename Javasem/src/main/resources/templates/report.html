@@ -1,75 +1,322 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Reports | JavaSem</title>
+    <meta charset="UTF-8">
+    <title>🎓 Student Progress Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: "Poppins", sans-serif;
-            background: #f7faff;
-            margin: 20px;
+            background: linear-gradient(135deg, #d4fc79, #96e6a1);
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
-        h2 {
+
+        header {
             text-align: center;
-            color: #2c3e50;
+            padding: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #007bff;
         }
-        .chart-container {
+
+        .home-btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .home-btn:hover { background: #0056b3; }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 25px auto;
+        }
+
+        .dashboard {
             display: flex;
-            justify-content: space-around;
             flex-wrap: wrap;
-            margin-top: 40px;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
         }
-        .chart-box {
-            width: 45%;
-            min-width: 350px;
+
+        .card {
             background: white;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            width: 280px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .card h3 { color: #007bff; margin-bottom: 10px; }
+
+        .progress-bar {
+            height: 15px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #00c6ff);
+            text-align: right;
+            color: white;
+            font-size: 10px;
+            padding-right: 5px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        select, input, textarea {
+            margin: 5px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            width: 80%;
+            font-family: inherit;
+        }
+
+        textarea { resize: vertical; height: 60px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #cbe2ff;
+            font-weight: bold;
+        }
+
+        .submit-btn, .delete-btn {
+            border: none;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .submit-btn { background: #007bff; }
+        .delete-btn { background: #dc3545; }
+        .submit-btn:hover { background: #0056b3; }
+        .delete-btn:hover { background: #b02a37; }
+
+        canvas {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            display: block;
         }
     </style>
 </head>
 <body>
-<h2>📊 JavaSem Reports</h2>
-<div class="chart-container">
-    <div class="chart-box">
-        <h3>Attendance Percentage</h3>
-        <canvas id="attendanceChart"></canvas>
-    </div>
-    <div class="chart-box">
-        <h3>Average Marks</h3>
-        <canvas id="marksChart"></canvas>
+
+<header>🎓 Student Progress Dashboard</header>
+
+<div style="text-align:center; margin-top:10px;">
+    <a th:href="@{/}" class="home-btn">🏠 Go to Home</a>
+</div>
+
+<div class="container">
+
+    <!-- ✅ Dashboard -->
+    <div class="dashboard">
+        <div class="card">
+            <h3>Average Attendance</h3>
+            <p th:text="${averageAttendance + '%'}"></p>
+            <div class="progress-bar">
+                <div class="progress" th:style="'width:' + ${averageAttendance} + '%'"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Average Marks</h3>
+            <p th:text="${averageMarks + '%'}"></p>
+            <div class="progress-bar">
+                <div class="progress" th:style="'width:' + ${averageMarks} + '%'"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Overall Performance</h3>
+            <p th:text="${overallPerformance}"></p>
+        </div>
     </div>
 </div>
 
-<script>
-    const ctx1 = document.getElementById('attendanceChart');
-    new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: ['Alice', 'Bob', 'Charlie', 'David'],
-            datasets: [{
-                label: 'Attendance (%)',
-                data: [90, 80, 95, 70],
-                backgroundColor: '#6a11cb'
-            }]
-        }
-    });
+<!-- ✅ Filter by Student Name -->
+<div class="form-container" style="margin-bottom: 30px;">
+    <h3>🎯 Filter Reports by Student</h3>
+    <form th:action="@{/report}" method="get" style="display:inline-block;">
+        <label for="studentName">Select Student:</label>
+        <select name="studentName" id="studentName">
+            <option value="">-- All Students --</option>
+            <option th:each="u : ${users}"
+                    th:value="${u.username}"
+                    th:text="${u.username}"
+                    th:selected="${param.studentName == u.username}">
+            </option>
+        </select>
+        <button type="submit" class="submit-btn" style="margin-left:10px;">Filter</button>
+    </form>
+</div>
 
-    const ctx2 = document.getElementById('marksChart');
-    new Chart(ctx2, {
-        type: 'line',
-        data: {
-            labels: ['Math', 'Science', 'English', 'CS'],
-            datasets: [{
-                label: 'Average Marks',
-                data: [88, 92, 80, 85],
-                borderColor: '#00c6ff',
-                fill: false,
-                tension: 0.3
-            }]
-        }
-    });
+
+<!-- ✅ Chart -->
+    <canvas id="progressChart"></canvas>
+
+    <!-- ✅ Form -->
+    <div class="form-container">
+        <h3>📝 Add / Update Student Report</h3>
+        <form th:action="@{/report/submit}" th:object="${newReport}" method="post">
+            <div>
+                <label>Student Name:</label>
+                <select th:field="*{studentName}" required>
+                    <option value="">Select Student</option>
+                    <option th:each="u : ${users}" th:value="${u.username}" th:text="${u.username}"></option>
+                </select>
+
+            </div>
+
+            <div>
+                <label>Subject:</label>
+                <select th:field="*{subject}" required>
+                    <option value="">Select Subject</option>
+                    <option th:each="s : ${subjectsList}" th:value="${s}" th:text="${s}"></option>
+                </select>
+            </div>
+
+            <div>
+                <label>Marks:</label>
+                <input type="number" th:field="*{marks}" min="0" max="100" required>
+            </div>
+
+            <div>
+                <label>Attendance:</label>
+                <input type="number" th:field="*{attendance}" min="0" max="100" required>
+            </div>
+
+            <div>
+                <label>Teacher Suggestion:</label><br>
+                <textarea th:field="*{suggestion}" placeholder="Enter suggestion..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+
+    <!-- ✅ Table -->
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Student</th>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Attendance</th>
+            <th>Suggestion</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${reportList}">
+            <td th:text="${r.dateCreated != null ? T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd').format(r.dateCreated) : 'N/A'}"></td>
+            <td th:text="${r.studentName}"></td>
+            <td th:text="${r.subject}"></td>
+            <td th:text="${r.marks}"></td>
+            <td th:text="${r.attendance + '%'}"></td>
+            <td th:text="${r.suggestion}"></td>
+            <td>
+                <a th:href="@{/report/edit/{id}(id=${r.id})}" class="submit-btn">Edit</a>
+                <form th:action="@{/report/delete/{id}(id=${r.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="delete-btn" onclick="return confirm('Delete this report?');">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<!-- ✅ Chart Script -->
+<script th:inline="javascript">
+    // Get chart data from Thymeleaf
+    const studentNames = /*[[${studentNames}]]*/ [];
+    const marksList = /*[[${marksList}]]*/ [];
+    const attendanceList = /*[[${attendanceList}]]*/ [];
+
+    // If there's no data, show a friendly message instead of empty chart
+    if (studentNames.length === 0) {
+        document.getElementById("progressChart").outerHTML =
+            "<p style='text-align:center; font-weight:bold; color:#555;'>No data available for this student.</p>";
+    } else {
+        const ctx = document.getElementById('progressChart');
+        const progressChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: studentNames,
+                datasets: [
+                    {
+                        label: 'Marks (%)',
+                        data: marksList,
+                        backgroundColor: '#007bff'
+                    },
+                    {
+                        label: 'Attendance (%)',
+                        data: attendanceList,
+                        backgroundColor: '#00c6ff'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: {
+                        display: true,
+                        text: '📊 Student Progress Overview'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: 'Percentage (%)' }
+                    }
+                }
+            }
+        });
+    }
 </script>
+
+
 </body>
 </html>

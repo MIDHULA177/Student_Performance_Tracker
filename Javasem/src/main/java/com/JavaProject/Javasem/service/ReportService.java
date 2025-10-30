@@ -1,90 +1,85 @@
 package com.JavaProject.Javasem.service;
 
-import com.JavaProject.Javasem.model.Report; // ✅ CORRECTED: Importing from model
-import com.JavaProject.Javasem.model.Report; // ✅ CORRECTED: Importing from model
-import com.JavaProject.Javasem.model.Performance;
-import com.JavaProject.Javasem.model.User;
+import com.JavaProject.Javasem.model.Report;
+import com.JavaProject.Javasem.repository.ReportRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ReportService {
 
-    private final PerformanceService performanceService;
-    private final UserService userService;
+    @Autowired
+    private ReportRepository reportRepository;
 
-    public Report generateReport(Long studentId) {
-
-        // 1. Fetch Core Data
-        User student = userService.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found."));
-
-        List<Performance> performanceRecords = performanceService.findByStudentId(studentId);
-
-        // --- Attendance Placeholder ---
-        int totalAttendanceDays = 85;
-        int totalClassDays = 90;
-        double attendancePercentage = totalClassDays == 0 ? 0 : ((double)totalAttendanceDays / totalClassDays) * 100;
-        // ------------------------------
-
-        // 2. Analyze Data
-        List<Report> subjectReports = analyzePerformance(performanceRecords);
-        String overallGrade = calculateOverallGrade(performanceRecords);
-        String suggestion = generateSuggestion(overallGrade, attendancePercentage, subjectReports);
-
-        // 3. Construct the Final Report
-        return new Report(
-                student.getUsername(),
-                overallGrade,
-                attendancePercentage,
-                totalAttendanceDays,
-                totalClassDays,
-                suggestion,
-                subjectReports
-        );
+    public List<Report> getAllReports() {
+        return reportRepository.findAll();
     }
 
-    // --- Helper Methods ---
-
-    private List<Report> analyzePerformance(List<Performance> records) {
-        return records.stream()
-                .map(p -> new Report(p.getSubject(), p.getExam(), p.getMarks(), p.getGrade()))
-                .collect(Collectors.toList());
+    public Optional<Report> getReportById(Long id) {
+        return reportRepository.findById(id);
     }
 
-    private String calculateOverallGrade(List<Performance> records) {
-        if (records.isEmpty()) return "N/A";
-        double avg = records.stream().mapToInt(Performance::getMarks).average().orElse(0.0);
-
-        if (avg >= 90) return "A+";
-        if (avg >= 80) return "A";
-        if (avg >= 70) return "B+";
-        if (avg >= 60) return "B";
-        return "F";
-    }
-
-    private String generateSuggestion(String overallGrade, double attendancePercent, List<Report> subjectReports) {
-        StringBuilder sb = new StringBuilder();
-
-        if (attendancePercent < 80) {
-            sb.append("Attendance is critically low. Focus on attending all classes immediately. ");
-        } else if (overallGrade.equals("A+") || overallGrade.equals("A")) {
-            sb.append("Outstanding performance. Continue excelling! ");
+    public void saveReport(Report report) {
+        // Auto-generate suggestion if blank
+        if (report.getSuggestion() == null || report.getSuggestion().isBlank()) {
+            report.setSuggestion(generateSuggestion(report.getMarks(), report.getAttendance()));
         }
-
-        subjectReports.stream()
-                .min((r1, r2) -> Integer.compare(r1.getMarks(), r2.getMarks()))
-                .filter(weakest -> weakest.getMarks() < 60)
-                .ifPresent(weakest -> sb.append("Improvement is needed in **")
-                        .append(weakest.getSubject())
-                        .append("** where the score was ")
-                        .append(weakest.getMarks())
-                        .append("%."));
-
-        return sb.length() > 0 ? sb.toString().trim() : "Performance is satisfactory. Maintain consistency.";
+        reportRepository.save(report);
     }
+
+    public void deleteReport(Long id) {
+        reportRepository.deleteById(id);
+    }
+
+    // ✅ Helper: Auto-generate teacher suggestion
+    private String generateSuggestion(double marks, double attendance) {
+        if (marks >= 85 && attendance >= 90)
+            return "Excellent performance! Keep up the great consistency.";
+        else if (marks >= 70 && attendance >= 75)
+            return "Good progress. Maintain focus and consistency.";
+        else if (marks >= 50)
+            return "Average performance. Needs more attention on weak areas.";
+        else
+            return "Below average. Focus on improving concepts and attendance.";
+    }
+
+    // ✅ Dashboard calculations
+    public double calculateAverageMarks() {
+        List<Report> reports = reportRepository.findAll();
+        if (reports.isEmpty()) return 0;
+        return reports.stream().mapToDouble(Report::getMarks).average().orElse(0);
+    }
+
+    public double calculateAverageAttendance() {
+        List<Report> reports = reportRepository.findAll();
+        if (reports.isEmpty()) return 0;
+        return reports.stream().mapToDouble(Report::getAttendance).average().orElse(0);
+    }
+
+    public String getOverallPerformance(double avgMarks, double avgAttendance) {
+        if (avgMarks >= 85 && avgAttendance >= 90) return "Outstanding 🌟";
+        if (avgMarks >= 70 && avgAttendance >= 75) return "Good 👍";
+        if (avgMarks >= 50 && avgAttendance >= 60) return "Average ⚙️";
+        return "Needs Improvement ⚠️";
+    }
+
+
+    public double calculateAverageMarksForReports(List<Report> reports) {
+        if (reports.isEmpty()) return 0;
+        return reports.stream().mapToDouble(Report::getMarks).average().orElse(0);
+    }
+
+    public double calculateAverageAttendanceForReports(List<Report> reports) {
+        if (reports.isEmpty()) return 0;
+        return reports.stream().mapToDouble(Report::getAttendance).average().orElse(0);
+    }
+
+    public List<Report> getReportsByStudentName(String studentName) {
+        return reportRepository.findByStudentName(studentName);
+    }
+
+
 }
