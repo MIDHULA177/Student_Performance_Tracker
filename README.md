@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 🎓 Student Attendance and Performance Tracker
 🧭 Objective
 
@@ -172,3 +173,7 @@ Developed by: MIDHULA V
 Course: B.Tech in Artificial Intelligence and Data Science
 Year: 2025
 Project Title: Student Attendance and Performance Tracker
+=======
+# Student_Performance_Tracker
+Semester End Project - Java
+>>>>>>> 849682de14a87b6cb8b15f363ffdae60a537e752
